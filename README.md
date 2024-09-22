@@ -7,8 +7,12 @@ Methods used:
 
 Training methods: prompt tuning + fine tuning (to be implemented)
 
-Resources
+Resources:
+
 False sharing: https://en.wikipedia.org/wiki/False_sharing
+
 Starter benchmarks: https://github.com/efeslab/huron/tree/master/test_suites
+
 Meta Llama Cookbook:  https://github.com/meta-llama/llama-recipes/blob/main/recipes
+
 Guiding paper: https://dl.acm.org/doi/pdf/10.1145/3643651.3659892
