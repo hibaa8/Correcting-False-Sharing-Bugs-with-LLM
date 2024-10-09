@@ -1,0 +1,137 @@
+PROMPT1 = """
+False Sharing Bug Detection and Resolution
+
+Role: C Code Analyzer and Optimizer
+
+Task Description:
+Detect and resolve false sharing bugs in C code.
+
+Chain of Thought:
+1. Analyze the code structure and identify potential false sharing bugs.
+2. Evaluate the memory layout and cache line alignment.
+3. Detect frequently accessed variables by multiple threads.
+4. Suggest fixes or optimizations to resolve identified false sharing bugs.
+5. Generate corrected code snippets.
+
+Guidelines for Detection:
+- Look for contiguous arrays, nearby fields in the same object, or objects allocated close together.
+- Identify variables frequently accessed by multiple threads, with at least one thread writing.
+- Consider cache line size (typically 64 bytes) when analyzing memory layout.
+
+Guidelines for Correction:
+- Reduce writes to the cache line by using scratch variables or intermediate results.
+- Separate variables using alignment and padding to prevent sharing the same cache line.
+
+Example 1: Contiguous Array False Sharing
+
+Input code:
+int sharedArray[10];
+void threadFunction(int tid) {
+    for (int i = 0; i < 10000; i++) {
+        sharedArray[tid]++;
+    }
+}
+
+Step-by-step reasoning:
+1. Identified contiguous array `sharedArray` accessed by multiple threads.
+2. Detected frequent writes to `sharedArray[tid]` by multiple threads.
+3. Applied `alignas(64)` to separate array elements and imported <stdalign.h>.
+
+Corrected code:
+#include <stdalign.h>
+alignas(64) int sharedArray[10];
+void threadFunction(int tid) {
+    int localVar = 0;
+    for (int i = 0; i < 10000; i++) {
+        localVar++;
+    }
+    sharedArray[tid] = localVar;
+}
+
+
+Example 2: Struct False Sharing
+
+Input code:
+struct MyStruct {
+    int field1;
+    int field2;
+};
+MyStruct sharedStruct;
+
+Step-by-step reasoning:
+1. Identified struct `MyStruct` with nearby fields accessed by multiple threads.
+2. Detected frequent writes to `field1` and reads from `field2`.
+3. Applied manual padding to separate struct fields.
+
+Corrected code:
+struct MyStruct {
+    int field1;
+    char padding1[64 - sizeof(int)];
+    int field2;
+    char padding2[64 - sizeof(int)];
+};
+MyStruct sharedStruct;
+
+Example 3: Aligning Multiple Variables
+
+Input code:
+int var1;
+int var2;
+int var3;
+
+
+Step-by-step reasoning:
+1. Identified multiple variables accessed by multiple threads.
+2. Detected frequent writes to `var1` and `var3`, and reads from `var2`.
+3. Applied `alignas(64)` to separate variables and imported <stdalign.h>.
+
+Corrected code:
+#include <stdalign.h>
+alignas(64) int var1;
+alignas(64) int var2;
+alignas(64) int var3;
+
+
+Example 4: No False Sharing Bug
+
+Input code:
+#include <stdalign.h>
+alignas(64) int var1;
+alignas(64) int var2;
+void threadFunction1() {
+    var1++;
+}
+void threadFunction2() {
+    var2++;
+}
+
+Reasoning:
+1. Variables `var1` and `var2` are already aligned to separate cache lines.
+2. Each variable is accessed by only one thread.
+3. No false sharing bug exists.
+
+Your Task:
+Evaluate the following code example for false sharing bugs and provide corrections.
+
+Code Example:
+{}
+
+Task Requirements:
+1. Determine there the provided code contains false sharing bugs.
+2. If there is a bug present, provide corrections using alignment and padding techniques.
+3. Rewrite only the modified code sections.
+
+Evaluation Criteria:
+- Accuracy in detecting false sharing bugs
+- Effectiveness of suggested corrections
+- Quality of generated code snippets
+
+Additional Instructions:
+- Focus on identifying and correcting false sharing bugs.
+- Limit output to rewritten code sections.
+- Provide clear explanations for detected false sharing bugs and suggested corrections.
+- Import <stdalign.h> library when using alignas
+- Double check your generated code to ensure you are not making unnecessary changes to the original code.
+- Provide one solution with minimal changes.
+- Consider the possibility that the provided code does not have a false sharing bug.
+"""

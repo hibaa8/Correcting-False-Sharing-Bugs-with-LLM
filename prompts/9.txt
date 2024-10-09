@@ -1,0 +1,186 @@
+PROMPT9="""
+False Sharing Bug Detection and Resolution
+
+Role: C Code Analyzer and Optimizer
+
+Task Description:
+Detect and repair false sharing bugs in C/C++ code.
+
+Definition:
+False sharing: Occurs when multiple threads access distinct variables or disjoint bytes in the same cache line. They do not access the same
+memory location or overlapping bytes.
+
+Guidelines for Detecting False Sharing:
+1. Memory Proximity: Look for variables or fields that are close together in memory (e.g., in a contiguous array or in the same struct).
+2. Multiple Threads: Detect variables accessed by multiple threads where at least one thread writes to the variable.
+3. Cache Line Size: Analyze memory layout with respect to the cache line size.
+
+Guidelines for Correction (False Sharing Only):
+1. Apply alignment and padding to separate variables and avoid placing them in the same cache line.
+2. Use scratch variables or intermediate results to reduce writes to the cache line.
+
+Chain of Thought:
+1. Analyze the code structure based on the Guidelines for Detecting False Sharing.
+2. If a false sharing bug is detected, then proceed to step 3. Otherwise, proceed to step 4.
+3. Generate a corrected code snippet using the Guidelines for Correction and clearly indicate which lines were modified. Then, proceed to step 4.
+4. If you have not reached the end of the code, continue analyzing the rest of the code for any additional false sharing bugs. Otherwise, conclude the analysis.
+
+
+Example 1 (False Sharing):
+
+#include <pthread.h>
+#include <stdio.h>
+
+#define THREADS 4
+
+typedef struct {
+    int a;
+    int b;
+} data_t;
+
+data_t data[THREADS];
+
+void* worker(void* arg) {
+    int index = *(int*)arg;
+    for (int i = 0; i < 1000000; i++) {
+        data[index].a += 1;
+        data[index].b += 2;
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[THREADS];
+    int indices[THREADS];
+
+    for (int i = 0; i < THREADS; i++) {
+        indices[i] = i;
+        pthread_create(&threads[i], NULL, worker, &indices[i]);
+    }
+
+    for (int i = 0; i < THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    return 0;
+}
+
+Chain of Thought:
+1.Memory Proximity: The variables a and b are close in memory, as they are part of the same data_t structure and stored in a contiguous array.
+2.Multiple Threads: Each thread operates on a distinct index of the data array. The threads do not access the same memory, but they access adjacent fields within the same structure.
+3. Cache Line Size: If a and b fall within the same cache line (typically 64 bytes), this could lead to false sharing as multiple threads are writing to different parts of the same cache line.
+
+Bug Classification:
+False Sharing Detected: Multiple threads are accessing disjoint bytes of the same struct in the same cache line, so this false sharing.
+
+Corrected Code:
+
+#include <pthread.h>
+#include <stdio.h>
+
+#define THREADS 4
+
+typedef struct {
+    int a;
+    int b;
+    char padding[64]; // Add padding to avoid false sharing
+} data_t;
+
+data_t data[THREADS];
+
+void* worker(void* arg) {
+    int index = *(int*)arg;
+    for (int i = 0; i < 1000000; i++) {
+        data[index].a += 1;
+        data[index].b += 2;
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[THREADS];
+    int indices[THREADS];
+
+    for (int i = 0; i < THREADS; i++) {
+        indices[i] = i;
+        pthread_create(&threads[i], NULL, worker, &indices[i]);
+    }
+
+    for (int i = 0; i < THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    return 0;
+}
+
+Explanation: Padding is added to the struct to separate a and b into distinct cache lines, reducing the chance of false sharing.
+
+
+Example 2 (Not False Sharing):
+
+#include <pthread.h>
+#include <stdio.h>
+
+#define THREADS 4
+
+int shared_sum = 0;
+
+void* worker(void* arg) {
+    for (int i = 0; i < 1000000; i++) {
+        shared_sum++; // Multiple threads write to the same memory location
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[THREADS];
+
+    for (int i = 0; i < THREADS; i++) {
+        pthread_create(&threads[i], NULL, worker, NULL);
+    }
+
+    for (int i = 0; i < THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    printf("Final sum: %d\n", shared_sum);
+
+    return 0;
+}
+
+Chain of Thought:
+1.Memory Proximity: Only one shared variable, shared_sum, is being accessed by multiple threads.
+2.Multiple Threads: All threads increment the same shared_sum variable.
+3.Cache Line Size: Not relevant, as threads access the exact same memory location.
+
+Bug Classification:
+No False Sharing Detected: All threads are writing to the same memory location in the cache line. Since the threads are not accessing disjoint bytes, this is not a false sharing bug.
+
+Corrected Code:
+No correction needed, since this code does not have false sharing. The use of proper synchronization mechanisms would resolve any concurrency issues.
+
+
+Your Task:
+Evaluate the following code example for false sharing bugs and provide corrected code if necessary.
+
+Code Example:
+{}
+
+Task Requirements:
+1. Determine whether the provided code contains a false sharing bug or not.
+2. Only if a false sharing is present then provide code corrections using alignment and padding techniques.
+3. Rewrite only the modified code sections and provide line numbers that indicate which lines of the original code were modified.
+
+Evaluation Criteria:
+- Accuracy in detecting false sharing bugs
+- Efficiency of generated code snippets
+
+Additional Instructions for Performing Task:
+- Focus on identifying and correcting false sharing bugs.
+- Limit output to rewritten code sections.
+- Provide clear and concise explanations.
+- Import <stdalign.h> library when using alignas in corrected code solutions.
+- Double check your generated code to ensure you have not unnecessarily changed the original code.
+- When given an example, number each line in the code. When you provide a corrected code solution, indicate which lines were modified.
+- if contiguous memory is accessing memory across multiple cache lines, that is not false sharing.
+"""

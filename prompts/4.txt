@@ -1,0 +1,143 @@
+PROMPT4 = """
+False Sharing Bug Detection and Resolution
+
+Role: C/C++ Code Analyzer and Optimizer
+
+Task Description:
+Detect and repair false sharing bugs in C/C++ code.
+
+Definitions:
+- False sharing: Occurs when multiple threads access distinct variables or disjoint bytes that happen to be placed on the same cache line, leading to unnecessary cache coherence traffic.
+- True sharing: Occurs when one or more threads on different cores access overlapping bytes in the same cache line, leading to unavoidable cache coherence traffic due to actual shared memory usage.
+
+Guidelines for Detecting Bugs:
+
+1. Memory Proximity: Look for variables or fields that are close together in memory (e.g., in a contiguous array or in the same struct).
+2. Multiple Threads: Detect variables accessed by multiple threads where at least one thread writes to the variable.
+3. Cache Line Size: Analyze memory layout with respect to the typical cache line size (64 bytes).
+4. True Sharing Detection: If multiple threads are reading from and writing to the exact same memory location, it’s true sharing and not a false sharing case. True sharing bugs are outside the scope of this task.
+
+Guidelines for Correction (False Sharing Only):
+
+1. Use scratch variables or intermediate results to reduce writes to the cache line.
+2. Apply alignment and padding to separate variables and avoid placing them in the same cache line.
+
+Chain of Thought:
+1. Analyze the code structure based on the Guidelines for Detecting False Sharing.
+2. Identify frequently accessed variables by multiple threads, focusing on memory proximity.
+3. If a false sharing bug is detected and no true sharing bug is detected, proceed to steps 4-5 for correction. If false sharing and true sharing bugs
+are detected for the same code snippet, categorize that code as true sharing and proceed to step 5.
+4. Generate a corrected code snippet using the Guidelines for Correction and clearly indicate which lines were modified.
+5. If you have not reached the end of the code, continue analyzing the rest of the code for any additional false sharing bugs. Otherwise, proceed to step 6.
+6. Conclude the analysis.
+
+Example 1: Contiguous Array False Sharing
+
+Input code:
+
+int sharedArray[10];
+void threadFunction(int tid) {
+	for (int i = 0; i < 10000; i++) {
+		sharedArray[tid]++;
+	}
+}
+
+Step-by-step reasoning:
+1. Identified contiguous array sharedArray accessed by multiple threads.
+2. Detected frequent writes to sharedArray[tid] by multiple threads.
+3. Applied alignas(64) to separate array elements and imported <stdalign.h>.
+
+Corrected code:
+
+#include <stdalign.h>
+alignas(64) int sharedArray[10];
+void threadFunction(int tid) {
+	int localVar = 0;
+	for (int i = 0; i < 10000; i++) {
+		localVar++;
+	}
+	sharedArray[tid] = localVar;
+}
+
+Example 2: Aligning Multiple Variables**
+
+int var1;
+int var2;
+int var3;
+
+Step-by-step reasoning:
+1. Identified multiple variables accessed by multiple threads.
+2. Detected frequent writes to var1 and var3, and reads from var2.
+3. Applied alignas(64) to separate variables and imported <stdalign.h>.
+
+Corrected code:
+
+#include <stdalign.h>
+alignas(64) int var1;
+alignas(64) int var2;
+alignas(64) int var3;
+
+Example 3: No False Sharing Bug
+
+Input code:
+
+#include <stdalign.h>
+alignas(64) int var1;
+alignas(64) int var2;
+void threadFunction1() {
+	var1++;
+}
+void threadFunction2() {
+	var2++;
+}
+
+Step-by-step reasoning:
+1. Variables var1 and var2 are already aligned to separate cache lines.
+2. Each variable is accessed by only one thread.
+3. No false sharing bug exists.
+
+Example 4: True Sharing Bug
+
+Input code:
+
+int sharedCounter = 0;
+void threadFunction() {
+	for (int i = 0; i < 10000; i++) {
+		sharedCounter++;
+	}
+}
+
+Step-by-step reasoning:
+1. Identified the shared variable sharedCounter accessed by multiple threads.
+2. Detected frequent writes to the same memory location by multiple threads.
+3. This is a case of **true sharing** because multiple threads access and modify the same memory location.
+4. Did not correct this memory error because it is not a false sharing bug.
+
+Your Task:
+Evaluate the following code example for false sharing bugs and provide corrected code.
+
+Code Example:
+
+{}
+
+Task Requirements:
+1. Determine whether the provided code contains false sharing bugs.
+2. If a false sharing is present, provide corrections using alignment and padding techniques.
+3. Rewrite only the modified code sections and provide line numbers that indicate which lines of the original code were modified.
+
+Evaluation Criteria:
+- Accuracy in detecting false sharing bugs
+- Effectiveness of suggested corrections
+- Efficiency of generated code snippets
+
+Additional Instructions for Performing Task:
+- Focus on identifying and correcting false sharing bugs.
+- Limit output to rewritten code sections.
+- Provide clear and concise explanations for detected false sharing bugs and suggested corrections.
+- Import <stdalign.h> library when using alignas
+- Double check your generated code to ensure you have not unnecessarily changed the original code.
+- First, consider the possibility that the code does not have a memory bug. Then consider whether it has a true sharing bug. Lastly, consider whether it
+has a false sharing bug.
+- If you identify a true sharing bug, do not generate corrected code for it.
+- When given an example, number each line in the code. When you provide a corrected code solution, indicate which lines were modified.
+"""
