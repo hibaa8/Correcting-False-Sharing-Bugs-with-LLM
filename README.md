@@ -1,18 +1,18 @@
-Training LLM (Meta Llama 3.1) to detect and correct false sharing memory bugs in C code benchmarks
+## False Sharing Memory Bug Detection with LLM Static Code Analysis
+Training LLM to detect and correct false sharing memory bugs in C code benchmarks
 
-Methods used:
-1) Add padding between the memory allocations 
-2) Use align_alloc()
-3) Restructure code storage arrangement
+##### Navigation
+- prompts/: contains the iterations of the prompt. Each prompt is stored in a separate file.
+- src/: contains the prompt engineering notebook where working prompts are tested and the ts_fs_benchmarks notebook where all 12 benchmarks are with the current prompt.
+- test_suites/: contains the true and false sharing benchmarks currently being used to access the model's performance.
+    - shell_scripts/: scripts written to automate the runtime and memory overhead evaluation of  LLM-corrected code and baseline benchmark code.
 
-Training methods: prompt tuning + fine tuning (to be implemented)
+##### Technical Details:
+- All benchmarks are written in C or C++. 
+- Groq is used to access the open source Meta LLama 3.1 Instruct 70B model for testing.
 
-Resources:
-
+##### Resources:
 False sharing: https://en.wikipedia.org/wiki/False_sharing
-
-Starter benchmarks: https://github.com/efeslab/huron/tree/master/test_suites
-
 Meta Llama Cookbook:  https://github.com/meta-llama/llama-recipes/blob/main/recipes
-
 Guiding paper: https://dl.acm.org/doi/pdf/10.1145/3643651.3659892
+Benchmarks source: https://github.com/efeslab/huron/tree/master/test_suites

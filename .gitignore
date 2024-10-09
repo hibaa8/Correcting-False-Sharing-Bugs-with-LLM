@@ -1,0 +1,12 @@
+*.o
+
+!*.*
+
+.DS_Store
+
+*.hpp
+
+test_suites/false/
+test_suites/atomic_lock/
+test_suites/tensor/
+test_suites/.vscode/
