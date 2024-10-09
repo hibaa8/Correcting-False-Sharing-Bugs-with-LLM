@@ -12,10 +12,8 @@ Training LLM to detect and correct false sharing memory bugs in C code benchmark
 - Groq is used to access the open source Meta LLama 3.1 Instruct 70B model for testing.
 
 ##### Resources:
-False sharing: https://en.wikipedia.org/wiki/False_sharing
+- [False sharing](https://en.wikipedia.org/wiki/False_sharing)
+- [Meta Llama Cookbook](https://github.com/meta-llama/llama-recipes/blob/main/recipes)
+- [Guiding paper](https://dl.acm.org/doi/pdf/10.1145/3643651.3659892)
+- [Benchmarks source](https://github.com/efeslab/huron/tree/master/test_suites)
 
-Meta Llama Cookbook:  https://github.com/meta-llama/llama-recipes/blob/main/recipes
-
-Guiding paper: https://dl.acm.org/doi/pdf/10.1145/3643651.3659892
-
-Benchmarks source: https://github.com/efeslab/huron/tree/master/test_suites
