@@ -52,12 +52,7 @@ typedef struct {
    alignas(64) int red[256];   // Aligning to avoid false sharing
    alignas(64) int green[256]; // Aligning to avoid false sharing
    alignas(64) int blue[256];  // Aligning to avoid false sharing
-   // int red[256];
-   // char padding1[64];  // Padding to avoid false sharing
-   // int green[256];
-   // char padding2[64];  // Padding to avoid false sharing
-   // int blue[256];
-   // char padding3[64];  // Padding to avoid false sharing
+
 } thread_arg_t;
 
 /* test_endianess
